@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class Gpt3TokenizerTest extends TestCase {
 
-    private Gpt3Tokenizer $tokenizer;
+    private $tokenizer;
 
     protected function setUp(): void
     {

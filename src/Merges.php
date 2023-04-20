@@ -1,9 +1,15 @@
 <?php
 
 namespace Gioni06\Gpt3Tokenizer;
+use Exception;
+
 class Merges {
-    public function __construct(private string $path = __DIR__ . '/pretrained_vocab_files/merges.txt')
+
+    private $path;
+
+    public function __construct(string $path = __DIR__ . '/pretrained_vocab_files/merges.txt')
     {
+        $this->path = $path;
     }
 
     public function bpeMerges(): array

@@ -5,14 +5,14 @@ namespace Gioni06\Gpt3Tokenizer;
 class Gpt3Tokenizer
 {
     const PAT_REGEX = "/'s|'t|'re|'ve|'m|'ll|'d| ?[[:alpha:]]+| ?[[:digit:]]+| ?[^[:space:]\pL\pN]+|\s+(?!\S)|\s+/u";
-    private mixed $vocab;
-    private array $bpeMerges;
-    private array $bpe_ranks;
-    private bool $apcuAvailable;
+    private $vocab;
+    private $bpeMerges;
+    private $bpe_ranks;
+    private $apcuAvailable;
 
-    private array $cache = [];
+    private $cache = [];
 
-    private bool $useCache;
+    private $useCache;
 
 
     public function __construct(Gpt3TokenizerConfig $config)
@@ -45,7 +45,7 @@ class Gpt3Tokenizer
         }
     }
 
-    private function cacheGet($key): mixed
+    private function cacheGet($key)
     {
         if ($this->apcuAvailable) {
             /** @noinspection PhpComposerExtensionStubsInspection */
@@ -55,7 +55,7 @@ class Gpt3Tokenizer
         }
     }
 
-    private function cacheExists($key): array|bool
+    private function cacheExists($key)
     {
         if ($this->apcuAvailable) {
             /** @noinspection PhpComposerExtensionStubsInspection */
@@ -369,7 +369,7 @@ class Gpt3Tokenizer
             return $this->cacheGet($token);
         }
 
-        $chars = mb_str_split($token);
+        $chars = $this->mb_str_split($token);
         $pairs = self::get_pairs($chars);
         if(!count($pairs)) {
             return implode(" ", $chars);
@@ -516,7 +516,7 @@ class Gpt3Tokenizer
         }, $tokens);
 
         $text = implode($text);
-        $chars = mb_str_split($text);
+        $chars = $this->mb_str_split($text);
         $decodedChars = array();
         for ($i = 0; $i < count($chars); $i++) {
             $decodedChars[] = $byte_decoder[$chars[$i]];
@@ -528,5 +528,37 @@ class Gpt3Tokenizer
     {
         $tokens = self::encode($text);
         return count($tokens);
+    }
+
+    /**
+     * mb_str_split for PHP 7.3
+     * @param $string
+     * @param $length
+     * @param $encoding
+     * @return array
+     */
+    protected static function mb_str_split($string, $length = 1, $encoding = null)
+    {
+        if (!is_null($string) && !is_scalar($string)) {
+            $type = gettype($string) === 'object' ? get_class($string) : gettype($string);
+            throw new \TypeError(sprintf('mb_str_split(): Argument #1 ($string) must be of type string, %s given', $type));
+        }
+        if ((!is_null($length) && !is_numeric($length)) || $length === '') {
+            $type = gettype($length) === 'object' ? get_class($length) : gettype($length);
+            throw new \TypeError(sprintf('mb_str_split(): Argument #2 ($string) must be of type int, %s given', $type));
+        }
+        if ((int)$length < 1) {
+            throw new \ValueError('mb_str_split(): Argument #2 ($length) must be greater than 0');
+        }
+        if ($encoding === null) {
+            $encoding = mb_internal_encoding();
+        }
+        $array = array();
+        $n = mb_strlen($string, $encoding);
+        for ($i = 0; $i < $n; $i += $length) {
+            $array []= mb_substr($string, $i, $length, $encoding);
+        }
+
+        return $array;
     }
 }
